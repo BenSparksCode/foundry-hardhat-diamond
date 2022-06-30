@@ -1,7 +1,7 @@
 {
-  "name": "hardhat-foundry-template",
+  "name": "foundry-hardhat-diamond",
   "version": "1.0.0",
-  "description": "The harmony between Foundry and Hardhat.",
+  "description": "Diamond Proxies, in a harmoneous Foundry x Hardhat environment",
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -9,7 +9,7 @@
   "scripts": {
     "test": "hardhat test"
   },
-  "author": "Devan Non <devanon@chainstride.capital>",
+  "author": "Ben Sparks",
   "license": "Apache-2.0",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
