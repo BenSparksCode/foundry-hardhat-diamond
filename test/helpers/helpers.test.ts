@@ -60,7 +60,7 @@ export const deployDiamond = async (deployerSigner: SignerWithAddress) => {
   const initFunctionCall = DiamondInit.interface.encodeFunctionData("init");
   await DiamondWithCutInterface.connect(deployerSigner).diamondCut(
     cut,
-    Diamond.address,
+    DiamondInit.address,
     initFunctionCall
   );
 };
@@ -71,7 +71,6 @@ export const getFunctionSelectors = (contract: Contract) => {
   let selectors = [];
 
   for (const sig of signatures) {
-    console.log(sig);
     if (sig !== "init(bytes)") {
       selectors.push(contract.interface.getSighash(sig));
     }
