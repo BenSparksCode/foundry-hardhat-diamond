@@ -63,6 +63,8 @@ export const deployDiamond = async (deployerSigner: SignerWithAddress) => {
     DiamondInit.address,
     initFunctionCall
   );
+
+  return Diamond.address
 };
 
 export const getFunctionSelectors = (contract: Contract) => {
