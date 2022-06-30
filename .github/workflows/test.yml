@@ -60,5 +60,6 @@ jobs:
         
       - name: Run Hardhat tests
         run: |
+          npm run typechain
           npm run test
         id: hardhat-test

@@ -8,7 +8,8 @@
   },
   "scripts": {
     "compile": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "typechain": "hardhat typechain"
   },
   "author": "Ben Sparks",
   "license": "Apache-2.0",
