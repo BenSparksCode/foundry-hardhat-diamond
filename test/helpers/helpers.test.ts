@@ -35,7 +35,6 @@ export const deployDiamond = async (deployerSigner: SignerWithAddress) => {
   const cut = []; // add facet details here, then execute cuts to add to Diamond
 
   for (const facetName of otherFacetNames) {
-    console.log("Adding:", facetName);
     // 4.1. Deploy the facet
     const factory = await ethers.getContractFactory(facetName);
     const contract = await factory.deploy();
@@ -53,8 +52,6 @@ export const deployDiamond = async (deployerSigner: SignerWithAddress) => {
     "IDiamondCut",
     Diamond.address
   );
-
-  console.log("Diamond Cut to be processed:\n", cut);
 
   // 5.1. also calls init() on initDiamond contract in the same Cut call
   const initFunctionCall = DiamondInit.interface.encodeFunctionData("init");
@@ -78,9 +75,5 @@ export const getFunctionSelectors = (contract: Contract) => {
     }
   }
 
-  // TODO add this back when needed
-  // selectors.contract = contract;
-  // selectors.remove = remove;
-  // selectors.get = get;
   return selectors;
 };
