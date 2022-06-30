@@ -9,65 +9,77 @@ export const constants = {
       REPLACE: 1,
       REMOVE: 2,
     },
-  }
-}
+  },
+};
 
 export const deployDiamond = async (deployerSigner: SignerWithAddress) => {
-    // 1. Deploy DiamondCutFacet
-    const DiamondCutFacetFactory = await ethers.getContractFactory(
-      "DiamondCutFacet"
-    );
-    const DiamondCutFacet = await DiamondCutFacetFactory.deploy();
-  
-    // 2. Deploy Diamond
-    const DiamondFactory = await ethers.getContractFactory("Diamond");
-    const Diamond = await DiamondFactory.deploy(
-      deployerSigner.address,
-      DiamondCutFacet.address
-    );
-  
-    // TODO delete
-    console.log(getFunctionSelectors(Diamond));
-  
-    // 3. Deploy DiamondInit helper
-    const DiamondInitFactory = await ethers.getContractFactory("DiamondInit");
-    const DiamondInit = await DiamondInitFactory.deploy();
-  
-    // 4. Deploy all other facets
-    const otherFacetNames = ["DiamondLoupeFacet", "OwnershipFacet"];
-    const cut = []; // add facet details here, then execute cuts to add to Diamond
-  
-    console.log("facets:", otherFacetNames);
-  
-    for (const facetName of otherFacetNames) {
-      console.log(facetName);
-      const factory = await ethers.getContractFactory(facetName);
-      const contract = await factory.deploy();
-      cut.push({
-        facetAddress: contract.address,
-        action: constants.DIAMOND.CUT_ACTIONS.ADD,
-        functionSelectors: getFunctionSelectors(contract),
-      });
-    }
-  
-    // 4. Set up Facet cuts to be applied to Diamond
-  
-    // 5. Apply cuts to Diamond
-  };
+  // 1. Deploy DiamondCutFacet
+  const DiamondCutFacetFactory = await ethers.getContractFactory(
+    "DiamondCutFacet"
+  );
+  const DiamondCutFacet = await DiamondCutFacetFactory.deploy();
 
-  export const getFunctionSelectors = (contract: Contract) => {
+  // 2. Deploy Diamond - needs DiamondCutFacet address as deploy arg
+  const DiamondFactory = await ethers.getContractFactory("Diamond");
+  const Diamond = await DiamondFactory.deploy(
+    deployerSigner.address,
+    DiamondCutFacet.address
+  );
+
+  // 3. Deploy DiamondInit helper
+  const DiamondInitFactory = await ethers.getContractFactory("DiamondInit");
+  const DiamondInit = await DiamondInitFactory.deploy();
+
+  // 4. Set up other facets to be added to the Diamond
+  const otherFacetNames = ["DiamondLoupeFacet", "OwnershipFacet"];
+  const cut = []; // add facet details here, then execute cuts to add to Diamond
+
+  for (const facetName of otherFacetNames) {
+    console.log("Adding:", facetName);
+    // 4.1. Deploy the facet
+    const factory = await ethers.getContractFactory(facetName);
+    const contract = await factory.deploy();
+    // 4.2. Add the facet and its function selectors to the cut object
+    cut.push({
+      facetAddress: contract.address,
+      action: constants.DIAMOND.CUT_ACTIONS.ADD,
+      functionSelectors: getFunctionSelectors(contract),
+    });
+  }
+
+  // 5. Retrieves contract deployed at Diamond address, but uses Cut facet interface to
+  // ensure diamondCut function can be called on this contract object
+  const DiamondWithCutInterface = await ethers.getContractAt(
+    "IDiamondCut",
+    Diamond.address
+  );
+
+  console.log("Diamond Cut to be processed:\n", cut);
+
+  // 5.1. also calls init() on initDiamond contract in the same Cut call
+  const initFunctionCall = DiamondInit.interface.encodeFunctionData("init");
+  await DiamondWithCutInterface.connect(deployerSigner).diamondCut(
+    cut,
+    Diamond.address,
+    initFunctionCall
+  );
+};
+
+export const getFunctionSelectors = (contract: Contract) => {
   const signatures = Object.keys(contract.interface.functions);
-  const selectors = signatures.reduce((acc, val) => {
-    console.log(val);
-    if (val !== "init(bytes)") {
-      // acc.push(contract.interface.getSighash(val))
+
+  let selectors = [];
+
+  for (const sig of signatures) {
+    console.log(sig);
+    if (sig !== "init(bytes)") {
+      selectors.push(contract.interface.getSighash(sig));
     }
-    return acc;
-  }, []);
+  }
+
   // TODO add this back when needed
   // selectors.contract = contract;
   // selectors.remove = remove;
   // selectors.get = get;
   return selectors;
 };
-  
