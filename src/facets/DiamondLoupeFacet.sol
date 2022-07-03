@@ -17,6 +17,7 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
     //     address facetAddress;
     //     bytes4[] functionSelectors;
     // }
+    // keccak256("facets()") = 0x7a0ed627
     /// @notice Gets all facets and their selectors.
     /// @return facets_ Facet
     function facets() external view override returns (Facet[] memory facets_) {
@@ -70,6 +71,7 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
         }
     }
 
+    // keccak256("facetFunctionSelectors(address)") = 0xadfca15e
     /// @notice Gets all the function selectors supported by a specific facet.
     /// @param _facet The facet address.
     /// @return _facetFunctionSelectors The selectors associated with a facet address.
@@ -98,6 +100,7 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
         }
     }
 
+    // keccak256("facetAddresses()") = 0x52ef6b2c
     /// @notice Get all the facet addresses used by a diamond.
     /// @return facetAddresses_
     function facetAddresses() external view override returns (address[] memory facetAddresses_) {

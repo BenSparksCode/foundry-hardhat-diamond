@@ -32,14 +32,14 @@ export const deployDiamond = async (deployerSigner: SignerWithAddress) => {
 
   // 4. Set up other facets to be added to the Diamond
   const otherFacetNames = ["DiamondLoupeFacet", "OwnershipFacet"];
-  const cut = []; // add facet details here, then execute cuts to add to Diamond
+  const cuts = []; // add facet details here, then execute cuts to add to Diamond
 
   for (const facetName of otherFacetNames) {
     // 4.1. Deploy the facet
     const factory = await ethers.getContractFactory(facetName);
     const contract = await factory.deploy();
     // 4.2. Add the facet and its function selectors to the cut object
-    cut.push({
+    cuts.push({
       facetAddress: contract.address,
       action: constants.DIAMOND.CUT_ACTIONS.ADD,
       functionSelectors: getFunctionSelectors(contract),
@@ -56,7 +56,7 @@ export const deployDiamond = async (deployerSigner: SignerWithAddress) => {
   // 5.1. also calls init() on initDiamond contract in the same Cut call
   const initFunctionCall = DiamondInit.interface.encodeFunctionData("init");
   await DiamondWithCutInterface.connect(deployerSigner).diamondCut(
-    cut,
+    cuts,
     DiamondInit.address,
     initFunctionCall
   );
@@ -75,5 +75,6 @@ export const getFunctionSelectors = (contract: Contract) => {
     }
   }
 
+  console.log("selectors", selectors)
   return selectors;
 };
