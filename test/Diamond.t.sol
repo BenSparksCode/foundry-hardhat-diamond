@@ -65,6 +65,9 @@ contract DiamondTest is Test {
             sigs
         );
 
+        // sig = 0x1f931c1c ???
+        address(d).call(abi.encodeWithSignature("diamondCut(IDiamondCut.FacetCut[],address,bytes)", cuts, address(di), di.init.selector));
+
     }
 
     function setUp() public {
@@ -76,5 +79,12 @@ contract DiamondTest is Test {
     function testDeploy() public {
         emit log_address(address(dcf));
         assertTrue(address(dcf) != address(0));
+
+        (bool success, bytes memory data) = address(d).call(abi.encodeWithSignature("facetFunctionSelectors(address)", address(dof)));
+
+        bytes4[] memory sigs = abi.decode(data, (bytes4[]));
+        emit log_bytes32(sigs[1]);
     }
+
+
 }
